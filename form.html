@@ -1,51 +1,44 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <title>Ajánlatkérés</title>
+  <meta charset="UTF-8">
+  <title>Esketési Ajánlat Generátor</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
+      font-family: sans-serif;
+      margin: 40px auto;
       max-width: 800px;
-      margin: auto;
-      background-color: #fafafa;
+      padding: 20px;
+      background: #f9f6f6;
+    }
+    h1 {
+      text-align: center;
+      color: #b28383;
     }
     label {
       display: block;
-      margin-top: 1rem;
+      margin-top: 20px;
     }
     input, select {
       width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.3rem;
+      padding: 8px;
+      margin-top: 5px;
     }
-    .inline {
-      display: flex;
-      gap: 1rem;
-    }
-    .inline div {
-      flex: 1;
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #d9bebe;
+      border: none;
+      cursor: pointer;
     }
     .hidden {
       display: none;
     }
-    button {
-      margin-top: 2rem;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      background-color: #d8b4a0;
-      border: none;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #c09a89;
-    }
   </style>
 </head>
 <body>
-  <h1>Esküvői ajánlatkérés</h1>
+  <h1>Esketési Ajánlat Generátor</h1>
   <form action="/generate-pdf" method="POST">
     <label>Menyasszony neve:
       <input type="text" name="bride" required>
@@ -56,82 +49,98 @@
     <label>Esküvő dátuma:
       <input type="date" name="date" required>
     </label>
-    <div class="inline">
-      <div>
-        <label>Óra:
-          <select name="hour">
-            ${[...Array(24).keys()].map(n => `<option>${n.toString().padStart(2, '0')}</option>`).join('')}
-          </select>
-        </label>
-      </div>
-      <div>
-        <label>Perc:
-          <select name="minute">
-            <option>00</option>
-            <option>15</option>
-            <option>30</option>
-            <option>45</option>
-          </select>
-        </label>
-      </div>
-    </div>
+    <label>Szertartás kezdete:
+      <select name="hour">
+        <option value="00">00</option>
+<option value="01">01</option>
+<option value="02">02</option>
+<option value="03">03</option>
+<option value="04">04</option>
+<option value="05">05</option>
+<option value="06">06</option>
+<option value="07">07</option>
+<option value="08">08</option>
+<option value="09">09</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option value="22">22</option>
+<option value="23">23</option>
+      </select>
+      <select name="minute">
+        <option value="00">00</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+        <option value="45">45</option>
+      </select>
+    </label>
     <label>Helyszín:
       <input type="text" name="location" required>
     </label>
     <label>Helyszín távolsága (km):
       <input type="number" name="distance" id="distance" required>
     </label>
-    <label>Magyarországi helyszín?
-      <select name="hungarian" id="hungarianSelect" onchange="toggleForeignOptions()">
-        <option value="igen">Igen</option>
+    <label>Magyarországi helyszín:
+      <select name="hungarian" id="hungarian" onchange="toggleForeignOptions()">
+        <option value="igen" selected>Igen</option>
         <option value="nem">Nem</option>
       </select>
     </label>
     <div id="foreignOptions" class="hidden">
-      <label>Mit jelenítsen meg a PDF-ben?
-        <select name="displayOption" id="displayOption" onchange="toggleCustomText()">
+      <label>Mit jelenítsen meg az ajánlatban:
+        <select name="displayOption" id="displayOption">
           <option value="km">Km-díj</option>
-          <option value="custom">Egyedi szöveg</option>
+          <option value="custom" selected>Egyedi szöveg</option>
         </select>
       </label>
-      <label id="customTextLabel" class="hidden">Egyedi szöveg:
+      <label>Egyedi szöveg:
         <input type="text" name="customText" value="repülő + szállás + egyéb költségek, amit a megrendelő fizet">
       </label>
     </div>
     <label>Vendégek száma:
       <input type="number" name="guests" required>
     </label>
-    <label>Csomag:
+    <label>Csomagválasztás:
       <select name="selectedPackage">
-        <option>Alap</option>
-        <option>Prémium</option>
-        <option>Exkluzív</option>
+        <option value="Alap">Alap</option>
+        <option value="Standard">Standard</option>
+        <option value="Exkluzív">Exkluzív</option>
       </select>
     </label>
-    <label>Kilométer díj (Ft/km):
-      <input type="number" name="kmdij" id="kmdij" value="150" required>
+    <label>Km-díj (Ft/km):
+      <input type="number" name="kmdij" id="kmdij" value="150">
     </label>
     <label>Kiszállási díj (Ft):
-      <input type="number" name="kiszalldij" id="kiszalldij" required>
+      <input type="number" name="kiszalldij" id="kiszalldij">
     </label>
     <button type="submit">PDF generálása</button>
   </form>
+
   <script>
     function toggleForeignOptions() {
-      const isHungarian = document.getElementById("hungarianSelect").value === "igen";
-      document.getElementById("foreignOptions").classList.toggle("hidden", isHungarian);
+      const isHungarian = document.getElementById('hungarian').value === 'igen';
+      document.getElementById('foreignOptions').classList.toggle('hidden', isHungarian);
     }
-    function toggleCustomText() {
-      const option = document.getElementById("displayOption").value;
-      document.getElementById("customTextLabel").classList.toggle("hidden", option !== "custom");
-    }
-    document.getElementById("distance").addEventListener("input", updateFee);
-    document.getElementById("kmdij").addEventListener("input", updateFee);
-    function updateFee() {
-      const distance = parseFloat(document.getElementById("distance").value || 0);
-      const kmdij = parseFloat(document.getElementById("kmdij").value || 0);
-      const fee = Math.round((distance * 2 * kmdij) / 1000) * 1000;
-      document.getElementById("kiszalldij").value = fee;
+
+    document.getElementById('distance').addEventListener('input', updateKiszallas);
+    document.getElementById('kmdij').addEventListener('input', updateKiszallas);
+
+    function updateKiszallas() {
+      const dist = parseFloat(document.getElementById('distance').value);
+      const km = parseFloat(document.getElementById('kmdij').value);
+      if (!isNaN(dist) && !isNaN(km)) {
+        const value = Math.round(dist * 2 * km / 1000) * 1000;
+        document.getElementById('kiszalldij').value = value;
+      }
     }
   </script>
 </body>
