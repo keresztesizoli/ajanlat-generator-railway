@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Esketési ajánlat generálás</title>
+  <style>
+    body {
+      font-family: Georgia, serif;
+      background: #fff8f8;
+      color: #333;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.3em;
+    }
+    button {
+      margin-top: 1.5em;
+      padding: 0.6em 1.2em;
+      background: #e7c4cc;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Esketési ajánlat kérés</h1>
+  <form action="/generate-pdf" method="POST">
+    <label>Menyasszony neve:
+      <input type="text" name="bride" required>
+    </label>
+    <label>Vőlegény neve:
+      <input type="text" name="groom" required>
+    </label>
+    <label>Esküvő dátuma:
+      <input type="date" name="date" required>
+    </label>
+    <label>Helyszín:
+      <input type="text" name="location" required>
+    </label>
+    <label>Csomag:
+      <select name="selectedPackage">
+        <option>Alapcsomag</option>
+        <option>Prémium csomag</option>
+        <option>Exkluzív csomag</option>
+      </select>
+    </label>
+    <button type="submit">PDF generálása</button>
+  </form>
+</body>
+</html>
