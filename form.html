@@ -1,143 +1,147 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Esketési ajánlatkérés</title>
+  <meta charset="UTF-8">
+  <title>Ajánlat Generátor</title>
   <style>
     body {
-      font-family: 'Georgia', serif;
-      background-color: #fef6f7;
-      margin: 0;
-      padding: 2rem;
-      color: #444;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 {
-      color: #a45d5d;
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      background: #fdfdfd;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     label {
-      margin-top: 1rem;
-      display: block;
-    }
-    input, select {
-      padding: 0.5rem;
-      margin-top: 0.3rem;
-      width: 100%;
-      font-size: 1rem;
-    }
-    .inline {
-      display: inline-block;
-      width: 48%;
-      margin-right: 2%;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 0.75rem 1.5rem;
-      background-color: #e6c5c5;
-      border: none;
       font-weight: bold;
-      cursor: pointer;
     }
-    #customTextBlock {
-      display: none;
+    .form-group {
+      margin-bottom: 16px;
     }
   </style>
 </head>
 <body>
-  <h1>Esketési ajánlatkérés</h1>
-  <form action="/generate-pdf" method="POST" id="offerForm">
-    <label>Menyasszony neve:
-      <input type="text" name="bride" required />
-    </label>
-    <label>Vőlegény neve:
-      <input type="text" name="groom" required />
-    </label>
-    <label>Esküvő dátuma:
-      <input type="date" name="date" required />
-    </label>
-    <div class="inline">
-      <label>Szertartás kezdete (óra):
-        <select name="hour">
-          <option>00</option><option>01</option><option>02</option><option>03</option>
-          <option>04</option><option>05</option><option>06</option><option>07</option>
-          <option>08</option><option>09</option><option>10</option><option>11</option>
-          <option>12</option><option>13</option><option>14</option><option>15</option>
-          <option>16</option><option>17</option><option>18</option><option>19</option>
-          <option>20</option><option>21</option><option>22</option><option>23</option>
-        </select>
-      </label>
+  <h1>Esketési Ajánlat Generátor</h1>
+  <form action="/generate-pdf" method="POST">
+    <div class="form-group">
+      <label>Menyasszony neve:</label><br>
+      <input name="bride" required>
     </div>
-    <div class="inline">
-      <label>Szertartás kezdete (perc):
-        <select name="minute">
-          <option>00</option>
-          <option>15</option>
-          <option>30</option>
-          <option>45</option>
-        </select>
-      </label>
+    <div class="form-group">
+      <label>Vőlegény neve:</label><br>
+      <input name="groom" required>
     </div>
-    <label>Helyszín:
-      <input type="text" name="location" required />
-    </label>
-    <label>Helyszín távolsága (km):
-      <input type="number" name="distance" id="distance" value="0" required />
-    </label>
-    <label>Magyarországi helyszín:
-      <select name="hungarian" id="hungarian">
-        <option value="igen" selected>Igen</option>
+    <div class="form-group">
+      <label>Esküvő dátuma:</label><br>
+      <input name="date" type="date" required>
+    </div>
+    <div class="form-group">
+      <label>Szertartás kezdete:</label><br>
+      <select name="hour" required>
+        <option value="00">00</option>
+<option value="01">01</option>
+<option value="02">02</option>
+<option value="03">03</option>
+<option value="04">04</option>
+<option value="05">05</option>
+<option value="06">06</option>
+<option value="07">07</option>
+<option value="08">08</option>
+<option value="09">09</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option value="22">22</option>
+<option value="23">23</option>
+      </select> :
+      <select name="minute" required>
+        <option value="00">00</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+        <option value="45">45</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Helyszín:</label><br>
+      <input name="location" required>
+    </div>
+    <div class="form-group">
+      <label>Helyszín távolsága (km):</label><br>
+      <input type="number" name="distance" id="distance" required>
+    </div>
+    <div class="form-group">
+      <label>Magyarországi helyszín?</label><br>
+      <select name="hungarian" id="hungarian" onchange="toggleCustomOptions()">
+        <option value="igen">Igen</option>
         <option value="nem">Nem</option>
       </select>
-    </label>
-    <label>Vendégek száma:
-      <input type="number" name="guests" required />
-    </label>
-    <label>Csomag:
-      <select name="selectedPackage">
+    </div>
+    <div class="form-group" id="customOptionGroup" style="display:none;">
+      <label>Mit jelenítsünk meg a PDF-ben?</label><br>
+      <select name="displayOption" id="displayOption" onchange="toggleCustomText()">
+        <option value="kmdij">Km-díj</option>
+        <option value="custom">Egyedi szöveg</option>
+      </select>
+    </div>
+    <div class="form-group" id="customTextGroup" style="display:none;">
+      <label>Egyedi szöveg:</label><br>
+      <input name="customText" value="repülő + szállás + egyéb költségek, amit a megrendelő fizet">
+    </div>
+    <div class="form-group">
+      <label>Vendégek száma:</label><br>
+      <input type="number" name="guests" required>
+    </div>
+    <div class="form-group">
+      <label>Csomagválasztás:</label><br>
+      <select name="selectedPackage" required>
         <option>Alapcsomag</option>
         <option>Prémium csomag</option>
         <option>Exkluzív csomag</option>
       </select>
-    </label>
-    <label>Km-díj (Ft/km):
-      <input type="number" name="kmdij" id="kmdij" value="150" required />
-    </label>
-    <label>Kiszállási díj (Ft):
-      <input type="number" name="kiszalldij" id="kiszalldij" value="0" required />
-    </label>
-    <div id="customTextBlock">
-      <label>Egyedi szöveg (külföldi esetén):
-        <input type="text" name="customText" value="repülő + szállás + egyéb költségek, amit a megrendelő fizet" />
-      </label>
     </div>
-    <button type="submit">Ajánlat PDF generálása</button>
+    <div class="form-group">
+      <label>Km-díj (Ft/km):</label><br>
+      <input type="number" name="kmdij" id="kmdij" value="150" required>
+    </div>
+    <div class="form-group">
+      <label>Kiszállási díj (Ft):</label><br>
+      <input type="number" name="kiszalldij" id="kiszalldij" required>
+    </div>
+    <button type="submit">PDF generálása</button>
   </form>
 
   <script>
-    const distanceInput = document.getElementById("distance");
-    const kmdijInput = document.getElementById("kmdij");
-    const kiszalldijInput = document.getElementById("kiszalldij");
-    const hungarianSelect = document.getElementById("hungarian");
-    const customTextBlock = document.getElementById("customTextBlock");
-
-    function updateKiszallasiDij() {
-      const km = parseFloat(distanceInput.value) || 0;
-      const rate = parseFloat(kmdijInput.value) || 0;
-      const total = Math.round(km * 2 * rate / 1000) * 1000;
-      kiszalldijInput.value = total;
+    function toggleCustomOptions() {
+      const isHungarian = document.getElementById('hungarian').value === 'nem';
+      document.getElementById('customOptionGroup').style.display = isHungarian ? 'block' : 'none';
+      toggleCustomText();
     }
 
-    distanceInput.addEventListener("input", updateKiszallasiDij);
-    kmdijInput.addEventListener("input", updateKiszallasiDij);
+    function toggleCustomText() {
+      const displayOption = document.getElementById('displayOption')?.value;
+      const show = displayOption === 'custom';
+      document.getElementById('customTextGroup').style.display = show ? 'block' : 'none';
+    }
 
-    hungarianSelect.addEventListener("change", () => {
-      if (hungarianSelect.value === "nem") {
-        customTextBlock.style.display = "block";
-      } else {
-        customTextBlock.style.display = "none";
-      }
-    });
+    document.getElementById('distance').addEventListener('input', calculateKiszallas);
+    document.getElementById('kmdij').addEventListener('input', calculateKiszallas);
+
+    function calculateKiszallas() {
+      const d = parseFloat(document.getElementById('distance').value || 0);
+      const k = parseFloat(document.getElementById('kmdij').value || 0);
+      const kiszallas = Math.ceil(d * 2 * k / 1000) * 1000;
+      document.getElementById('kiszalldij').value = kiszallas;
+    }
   </script>
 </body>
 </html>

@@ -1,136 +1,106 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bodyParser from 'body-parser';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'form.html'));
-});
-const PORT = process.env.PORT || 8080;
-
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/generate-pdf', async (req, res) => {
-  const {
-    bride, groom, date, hour, minute, location,
-    distance, hungarian, guests, selectedPackage,
-    kmdij, kiszalldij, customText
-  } = req.body;
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "form.html"));
+});
 
-  const useCustomText = hungarian === 'nem';
-  const csomagSzovegek = {
-    "Alapcsomag": "Letisztult, klasszikus szertartás, kb. 30 percben. Alap szöveg, egyéni részletek nélkül.",
-    "Prémium csomag": "A Prémium csomagban már lehetőség van közös momentum beillesztésére, egyéni szövegrészletre és zenei aláfestésre.",
-    "Exkluzív csomag": "Egyedi forgatókönyv szerint felépített szertartás, akár többszöri egyeztetéssel, zenékkel és különleges elemekkel."
-  };
+app.post("/generate-pdf", async (req, res) => {
+  const data = req.body;
+  const time = `${data.hour}:${data.minute}`;
+  const hun = data.hungarian === "igen";
+  const showCustom = data.displayOption === "custom";
+  const showText = showCustom ? data.customText : `${data.kiszalldij} Ft`;
 
-  const html = `
+  const htmlContent = `
     <html>
     <head>
       <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
         body {
-          font-family: 'Georgia', serif;
-          padding: 40px;
-          background-color: white;
-          color: #444;
-          font-size: 12pt;
+          font-family: 'Playfair Display', serif;
+          padding: 50px;
+          font-size: 13pt;
+          color: #333;
         }
         h1 {
-          color: #a45d5d;
-          font-size: 20pt;
+          font-size: 24pt;
+          margin-bottom: 10px;
+          color: #c29898;
         }
         h2 {
+          font-size: 18pt;
           margin-top: 30px;
-          color: #a45d5d;
-        }
-        .részletek {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-top: 20px;
+          color: #a27878;
         }
         ul {
           padding-left: 20px;
+          line-height: 1.6;
         }
-        .jobb-oldal {
-          margin-left: 20px;
-          flex-shrink: 0;
+        .row {
+          display: flex;
+          justify-content: space-between;
         }
-        .jobb-oldal img {
-          width: 200px;
-          object-fit: contain;
+        .right-img {
+          max-width: 40%;
+          margin-left: 30px;
+          align-self: flex-start;
         }
-        .section {
-          margin-top: 30px;
+        .logo {
+          width: 140px;
+          margin-bottom: 30px;
         }
       </style>
     </head>
     <body>
-      <img src="logo.png" style="height: 60px; margin-bottom: 30px;" />
-      <h1>Kedves ${bride} & ${groom}!</h1>
+      <img class="logo" src="file://${__dirname}/logo.png">
+      <h1>Kedves ${data.bride} & ${data.groom}!</h1>
       <p>Örömmel küldöm el szertartásvezetői ajánlatomat a magyar nyelvű esküvőtökhöz. Az Angel Ceremony által megálmodott 30 perc varázslat lesz – egy felejthetetlen élmény, ami megalapozza az egész nap ünnepi hangulatát.</p>
 
       <h2>Az esküvő részletei</h2>
-      <div class="részletek">
+      <div class="row">
         <ul>
-          <li><strong>Dátum:</strong> ${date}</li>
-          <li><strong>Időpont:</strong> ${hour}:${minute}</li>
-          <li><strong>Helyszín:</strong> ${location}</li>
-          <li><strong>Távolság:</strong> ${distance} km</li>
-          <li><strong>Vendégek száma:</strong> ${guests}</li>
-          <li><strong>Magyarországi helyszín:</strong> ${hungarian}</li>
-          <li><strong>Km-díj:</strong> ${kmdij} Ft/km</li>
-          <li><strong>Kiszállási díj:</strong> ${kiszalldij} Ft</li>
+          <li>Dátum: ${data.date}</li>
+          <li>Időpont: ${time}</li>
+          <li>Helyszín: ${data.location}</li>
+          <li>Távolság: ${data.distance} km</li>
+          <li>Vendégek száma: ${data.guests} fő</li>
+          <li>Csomag: ${data.selectedPackage}</li>
+          <li>${hun ? "Kiszállási díj" : "Utazási költség"}: ${showText}</li>
         </ul>
-        <div class="jobb-oldal">
-          <img src="Anita.png" />
-        </div>
+        <img class="right-img" src="file://${__dirname}/Anita.png">
       </div>
 
-      <div class="section">
-        <h2>Személyre szabott ceremónia</h2>
-        <p>Az esküvőtök napja egy életre szóló közös emlék lesz – és minden egyes pillanata rólatok fog szólni. Általam vezetett szertartás mindig teljesen személyre szabott, ezért nincs két egyforma esketés.</p>
-        <p>Az első egyeztetés során (személyesen vagy online) átbeszéljük az elképzeléseiteket, átnézzük a szerződést és tisztázzuk a részleteket. Ezt követően mindketten írtok nekem egy e-mailt, amiben megosztjátok a megismerkedésetek történetét, fontos momentumokat, és minden olyan információt, ami egy igazán bensőséges szertartáshoz szükséges – beleértve a fogadalmat, közös momentumot vagy szülőköszöntőt is.</p>
-        <p>A szertartásotok forgatókönyvét, zenei koreográfiáját is közösen alakítjuk ki – úgy, hogy az valóban a ti történeteteket mesélje el.</p>
-        <p><strong>Fontos tudnivaló:</strong> Szertartásvezetőként szimbolikus esketést tartok, amelyhez szükséges, hogy az anyakönyvi házasságkötés már korábban megtörténjen, legalább 30 nappal előtte jelezve a házasságkötési szándékot az illetékes hivatalnál.
-        A hivatalos anyakönyvi kivonatot kérlek, küldjétek el e-mailben lefotózva legkésőbb az esküvő előtt 5 nappal (szükség esetén akár az esküvő napján is elfogadom).</p>
-      </div>
-
-      <div class="section">
-        <h2>Ajánlott csomag: ${selectedPackage}</h2>
-        <p>${csomagSzovegek[selectedPackage]}</p>
-      </div>
-
-      ${useCustomText ? `<div class="section"><strong>Külföldi helyszín esetén:</strong> ${customText}</div>` : ""}
+      <h2>Személyre szabott ceremónia</h2>
+      <p>Az esküvőtök napja egy életre szóló közös emlék lesz – és minden egyes pillanata rólatok fog szólni. Általam vezetett szertartás mindig teljesen személyre szabott, ezért nincs két egyforma esketés.</p>
+      <p>Az első egyeztetés során (személyesen vagy online) átbeszéljük az elképzeléseiteket, átnézzük a szerződést és tisztázzuk a részleteket. Ezt követően mindketten írtok nekem egy e-mailt, amiben megosztjátok a megismerkedésetek történetét, fontos momentumokat, és minden olyan információt, ami egy igazán bensőséges szertartáshoz szükséges – beleértve a fogadalmat, közös momentumot vagy szülőköszöntőt is.</p>
+      <p>A szertartásotok forgatókönyvét, zenei koreográfiáját is közösen alakítjuk ki – úgy, hogy az valóban a ti történeteteket mesélje el.</p>
+      <p><strong>Fontos tudnivaló:</strong> Szertartásvezetőként szimbolikus esketést tartok, amelyhez szükséges, hogy az anyakönyvi házasságkötés már korábban megtörténjen, legalább 30 nappal előtte jelezve a házasságkötési szándékot az illetékes hivatalnál.<br>
+      A hivatalos anyakönyvi kivonatot kérlek, küldjétek el e-mailben lefotózva legkésőbb az esküvő előtt 5 nappal (szükség esetén akár az esküvő napján is elfogadom).</p>
     </body>
     </html>
   `;
 
-  try {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ['--no-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({ format: 'A4', printBackground: true });
-    await browser.close();
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+  await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+  const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+  await browser.close();
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=ajanlat.pdf');
-    res.send(pdf);
-  } catch (err) {
-    res.status(500).send("A server error has occurred");
-  }
+  res.contentType("application/pdf");
+  res.send(pdfBuffer);
 });
 
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Szerver fut a ${PORT} porton`);
+  console.log("Szerver fut a " + PORT + " porton");
 });
