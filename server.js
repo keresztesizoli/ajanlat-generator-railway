@@ -62,7 +62,7 @@ app.post("/generate-pdf", async (req, res) => {
       </style>
     </head>
     <body>
-      <img class="logo" src="file://${__dirname}/logo.png">
+      <img class="logo" src="/logo.png">
       <h1>Kedves ${data.bride} & ${data.groom}!</h1>
       <p>Örömmel küldöm el szertartásvezetői ajánlatomat a magyar nyelvű esküvőtökhöz. Az Angel Ceremony által megálmodott 30 perc varázslat lesz – egy felejthetetlen élmény, ami megalapozza az egész nap ünnepi hangulatát.</p>
 
@@ -77,7 +77,7 @@ app.post("/generate-pdf", async (req, res) => {
           <li>Csomag: ${data.selectedPackage}</li>
           <li>${hun ? "Kiszállási díj" : "Utazási költség"}: ${showText}</li>
         </ul>
-        <img class="right-img" src="file://${__dirname}/Anita.png">
+        <img class="right-img" src="/Anita.png">
       </div>
 
       <h2>Személyre szabott ceremónia</h2>
