@@ -1,8 +1,12 @@
-const express = require('express');
-const puppeteer = require('puppeteer');
-const bodyParser = require('body-parser');
-const path = require('path');
+import express from 'express';
+import puppeteer from 'puppeteer';
+import bodyParser from 'body-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -78,4 +82,4 @@ app.post('/generate-pdf', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Szerver elindult a ${PORT} porton`));
+app.listen(PORT, () => console.log(`Szerver fut a ${PORT} porton`));
