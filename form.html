@@ -1,50 +1,89 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8">
-  <title>Esketési ajánlat generálás</title>
+  <meta charset="UTF-8" />
+  <title>Esketési ajánlatkérés</title>
   <style>
     body {
-      font-family: Georgia, serif;
-      background: #fff8f8;
-      color: #333;
+      font-family: 'Georgia', serif;
+      background-color: #fef6f7;
+      margin: 0;
       padding: 2rem;
-      max-width: 600px;
+      color: #444;
+      max-width: 800px;
       margin: auto;
     }
+    h1 {
+      color: #a45d5d;
+    }
     label {
+      margin-top: 1rem;
       display: block;
-      margin-top: 1em;
     }
     input, select {
+      padding: 0.5rem;
+      margin-top: 0.3rem;
       width: 100%;
-      padding: 0.5em;
-      margin-top: 0.3em;
+      font-size: 1rem;
+    }
+    .inline {
+      display: inline-block;
+      width: 48%;
+      margin-right: 2%;
     }
     button {
-      margin-top: 1.5em;
-      padding: 0.6em 1.2em;
-      background: #e7c4cc;
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #e6c5c5;
       border: none;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Esketési ajánlat kérés</h1>
+  <h1>Esketési ajánlatkérés</h1>
   <form action="/generate-pdf" method="POST">
     <label>Menyasszony neve:
-      <input type="text" name="bride" required>
+      <input type="text" name="bride" required />
     </label>
     <label>Vőlegény neve:
-      <input type="text" name="groom" required>
+      <input type="text" name="groom" required />
     </label>
     <label>Esküvő dátuma:
-      <input type="date" name="date" required>
+      <input type="date" name="date" required />
     </label>
+    <div class="inline">
+      <label>Szertartás kezdete (óra):
+        <select name="hour">
+          ${[...Array(24).keys()].map(h => `<option>${h.toString().padStart(2, '0')}</option>`).join('')}
+        </select>
+      </label>
+    </div>
+    <div class="inline">
+      <label>Szertartás kezdete (perc):
+        <select name="minute">
+          <option>00</option>
+          <option>15</option>
+          <option>30</option>
+          <option>45</option>
+        </select>
+      </label>
+    </div>
     <label>Helyszín:
-      <input type="text" name="location" required>
+      <input type="text" name="location" required />
+    </label>
+    <label>Helyszín távolsága (km):
+      <input type="number" name="distance" required />
+    </label>
+    <label>Magyarországi helyszín:
+      <select name="hungarian">
+        <option value="igen" selected>Igen</option>
+        <option value="nem">Nem</option>
+      </select>
+    </label>
+    <label>Vendégek száma:
+      <input type="number" name="guests" required />
     </label>
     <label>Csomag:
       <select name="selectedPackage">
@@ -53,7 +92,16 @@
         <option>Exkluzív csomag</option>
       </select>
     </label>
-    <button type="submit">PDF generálása</button>
+    <label>Km-díj (Ft/km):
+      <input type="number" name="kmdij" value="150" required />
+    </label>
+    <label>Kiszállási díj (Ft):
+      <input type="number" name="kiszalldij" value="0" required />
+    </label>
+    <label>Egyedi szöveg (külföldi esetén):
+      <input type="text" name="customText" value="repülő + szállás + egyéb költségek, amit a megrendelő fizet" />
+    </label>
+    <button type="submit">Ajánlat PDF generálása</button>
   </form>
 </body>
 </html>
